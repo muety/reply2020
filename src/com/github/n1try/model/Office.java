@@ -1,6 +1,8 @@
 package com.github.n1try.model;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
@@ -47,12 +49,18 @@ public class Office {
         public void setType(TileType type) {
             this.type = type;
         }
+
+        public String print() {
+            return y + " " + x;
+        }
     }
 
     private Tile[][] tiles;
+    private List<Tile> tileList;
 
     public Office(int width, int height) {
         tiles = new Tile[height][width];
+        tileList = new ArrayList<>(width * height);
     }
 
     public void init(String[] officeConfig) {
@@ -66,23 +74,19 @@ public class Office {
                 } else if (token == TOKEN_MANAGER) {
                     tiles[i][j] = new Tile(j, i, TileType.MANAGER);
                 }
+                tileList.add(tiles[i][j]);
             }
         }
+
+        tileList.sort(Comparator.comparingInt(t -> adjacentTiles(t, t.type).size()));
+        Collections.reverse(tileList);
     }
 
-    public Optional<Tile> getFreeTile(TileType type) {
-        for (int i = 0; i < tiles.length; i++) {
-            for (int j = 0; j < tiles[0].length; j++) {
-                Tile t = tiles[i][j];
-                if (t.type == type && !t.isOccupied()) {
-                    return Optional.of(t);
-                }
-            }
-        }
-        return Optional.empty();
+    public Optional<Tile> nextTile(TileType type) {
+        return tileList.stream().filter(t -> t.type == type && !t.isOccupied()).findFirst();
     }
 
-    public List<Tile> getAdjacentTiles(Tile tile, TileType type) {
+    public List<Tile> adjacentTiles(Tile tile, TileType type) {
         List<Tile> adjacentTiles = new ArrayList();
 
         if (tile.x > 0) {

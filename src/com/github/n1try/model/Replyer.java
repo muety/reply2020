@@ -21,6 +21,10 @@ public abstract class Replyer {
         this.bonus = bonus;
     }
 
+    public int getIndex() {
+        return index;
+    }
+
     public int score() {
         return bonus;
     }

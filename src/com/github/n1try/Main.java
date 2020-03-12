@@ -32,7 +32,8 @@ public class Main {
         Solution solution = solver.solve();
 
         try {
-            Files.write(Paths.get("solution.txt"), solution.toString().getBytes());
+            String which = Paths.get(args[0]).getFileName().toString().substring(0, 1);
+            Files.write(Paths.get(String.format("%s_solution.txt", which)), solution.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
         }
