@@ -2,6 +2,9 @@ package com.github.n1try;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -9,6 +12,7 @@ import java.util.Scanner;
 import com.github.n1try.model.Developer;
 import com.github.n1try.model.Manager;
 import com.github.n1try.model.Office;
+import com.github.n1try.model.Solution;
 import com.github.n1try.solver.GreedySolver;
 import com.github.n1try.solver.Solver;
 
@@ -25,7 +29,13 @@ public class Main {
         }
 
         Solver solver = new GreedySolver(office, developers, managers);
-        solver.solve();
+        Solution solution = solver.solve();
+
+        try {
+            Files.write(Paths.get("solution.txt"), solution.toString().getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void readInput(String fileName) throws FileNotFoundException {
