@@ -81,7 +81,7 @@ public class Office {
             }
         }
 
-        tileList.sort(Comparator.comparingInt(t -> adjacentTiles(t, t.type).size()));
+        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type).size()));
         Collections.reverse(tileList);
     }
 
@@ -89,7 +89,7 @@ public class Office {
         return tileList.stream().filter(t -> t.type == type && !t.isOccupied()).findFirst();
     }
 
-    public List<Tile> adjacentTiles(Tile tile, TileType type) {
+    public List<Tile> getAdjacentTiles(Tile tile, TileType type) {
         List<Tile> adjacentTiles = new ArrayList<>();
 
         if (tile.x > 0) {
@@ -116,8 +116,15 @@ public class Office {
         return adjacentTiles;
     }
 
+    public Map<Integer, Tile> getPlacements() {
+        return tileList.stream()
+            .filter(Tile::isOccupied)
+            .filter(t -> t.type != TileType.UNAVAILABLE)
+            .collect(Collectors.toMap(t -> t.getOccupant().getIndex(), Function.identity()));
+    }
+
     public int score(Tile tile, Replyer replyer) {
-        return adjacentTiles(tile, tile.type).stream()
+        return getAdjacentTiles(tile, tile.type).stream()
             .mapToInt(t -> replyer.score(t.getOccupant()))
             .sum();
     }
@@ -127,12 +134,5 @@ public class Office {
             .filter(t -> t.occupant != null)
             .mapToInt(t -> score(t, t.occupant))
             .sum();
-    }
-
-    public Map<Integer, Tile> placements() {
-        return tileList.stream()
-            .filter(Tile::isOccupied)
-            .filter(t -> t.type != TileType.UNAVAILABLE)
-            .collect(Collectors.toMap(t -> t.getOccupant().getIndex(), Function.identity()));
     }
 }

@@ -18,7 +18,7 @@ public class Solution {
 
     @Override
     public String toString() {
-        Map<Integer, Office.Tile> placements = office.placements();
+        Map<Integer, Office.Tile> placements = office.getPlacements();
         StringBuilder sb = new StringBuilder();
         replyers.forEach(r -> {
             sb.append(placements.containsKey(r.getIndex()) ? placements.get(r.getIndex()).print() : "X");

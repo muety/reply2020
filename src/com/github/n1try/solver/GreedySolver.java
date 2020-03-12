@@ -78,7 +78,7 @@ public class GreedySolver implements Solver {
         Optional<? extends Replyer> replyer = findBestCandidate(tile, type);
         replyer.ifPresent(replyer1 -> place(replyer1, tile));
 
-        office.adjacentTiles(tile, type).forEach(t -> processRecursively(t, type));
+        office.getAdjacentTiles(tile, type).forEach(t -> processRecursively(t, type));
     }
 
     private void place(Replyer replyer, Office.Tile tile) {
