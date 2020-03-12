@@ -5,23 +5,23 @@ import java.util.Map;
 
 public class Solution {
     private List<Replyer> replyers;
-    private Map<Integer, Office.Tile> positions;
+    private Office office;
 
-    public Solution(List<Replyer> replyers, Map<Integer, Office.Tile> positions) {
-        this.positions = positions;
+    public Solution(List<Replyer> replyers, Office office) {
         this.replyers = replyers;
+        this.office = office;
     }
 
     public int getTotalScore() {
-        // TODO
-        return 0;
+        return office.totalScore();
     }
 
     @Override
     public String toString() {
+        Map<Integer, Office.Tile> placements = office.placements();
         StringBuilder sb = new StringBuilder();
         replyers.forEach(r -> {
-            sb.append(positions.containsKey(r.getIndex()) ? positions.get(r.getIndex()).print() : "X");
+            sb.append(placements.containsKey(r.getIndex()) ? placements.get(r.getIndex()).print() : "X");
             sb.append(System.lineSeparator());
         });
         return sb.toString();

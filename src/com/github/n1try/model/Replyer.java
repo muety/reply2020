@@ -30,6 +30,9 @@ public abstract class Replyer {
     }
 
     public int score(Replyer other) {
-        return company.equals(other.company) ? bonus * other.bonus : 0;
+        if (other == null || !other.getClass().equals(getClass()) || !other.company.equals(company)) {
+            return 0;
+        }
+        return bonus * other.bonus;
     }
 }

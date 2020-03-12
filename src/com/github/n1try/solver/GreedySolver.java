@@ -3,9 +3,7 @@ package com.github.n1try.solver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -21,13 +19,11 @@ public class GreedySolver implements Solver {
     private List<Developer> developers;
     private List<Manager> managers;
     private List<Replyer> all;
-    private Map<Integer, Office.Tile> positions;
 
     public GreedySolver(Office office, List<Developer> developers, List<Manager> managers) {
         this.office = office;
         this.developers = developers;
         this.managers = managers;
-        this.positions = new HashMap<>();
         this.all = Stream.of(developers, managers)
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(Replyer::getIndex))
@@ -54,10 +50,10 @@ public class GreedySolver implements Solver {
             processRecursively(tile.get(), Office.TileType.MANAGER);
         }
 
-        return new Solution(all, positions);
+        return new Solution(all, office);
     }
 
-    private Optional<Replyer> findBestCandidate(Office.Tile tile, Office.TileType type) {
+    private Optional<? extends Replyer> findBestCandidate(Office.Tile tile, Office.TileType type) {
         List<? extends Replyer> list;
         if (type == Office.TileType.DEVELOPER) {
             list = developers;
@@ -71,8 +67,7 @@ public class GreedySolver implements Solver {
             return Optional.empty();
         }
 
-        // TODO
-        return Optional.of(list.get(0));
+        return list.parallelStream().max(Comparator.comparingInt(r -> office.score(tile, r)));
     }
 
     private void processRecursively(Office.Tile tile, Office.TileType type) {
@@ -80,7 +75,7 @@ public class GreedySolver implements Solver {
             return;
         }
 
-        Optional<Replyer> replyer = findBestCandidate(tile, type);
+        Optional<? extends Replyer> replyer = findBestCandidate(tile, type);
         replyer.ifPresent(replyer1 -> place(replyer1, tile));
 
         office.adjacentTiles(tile, type).forEach(t -> processRecursively(t, type));
@@ -88,7 +83,6 @@ public class GreedySolver implements Solver {
 
     private void place(Replyer replyer, Office.Tile tile) {
         tile.setOccupant(replyer);
-        positions.put(replyer.getIndex(), tile);
 
         if (replyer instanceof Developer) {
             developers.remove(replyer);

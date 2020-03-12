@@ -4,7 +4,10 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 public class Office {
     public enum TileType {
@@ -87,7 +90,7 @@ public class Office {
     }
 
     public List<Tile> adjacentTiles(Tile tile, TileType type) {
-        List<Tile> adjacentTiles = new ArrayList();
+        List<Tile> adjacentTiles = new ArrayList<>();
 
         if (tile.x > 0) {
             if (tiles[tile.y][tile.x - 1].type == type) {
@@ -111,5 +114,25 @@ public class Office {
         }
 
         return adjacentTiles;
+    }
+
+    public int score(Tile tile, Replyer replyer) {
+        return adjacentTiles(tile, tile.type).stream()
+            .mapToInt(t -> replyer.score(t.getOccupant()))
+            .sum();
+    }
+
+    public int totalScore() {
+        return tileList.stream()
+            .filter(t -> t.occupant != null)
+            .mapToInt(t -> score(t, t.occupant))
+            .sum();
+    }
+
+    public Map<Integer, Tile> placements() {
+        return tileList.stream()
+            .filter(Tile::isOccupied)
+            .filter(t -> t.type != TileType.UNAVAILABLE)
+            .collect(Collectors.toMap(t -> t.getOccupant().getIndex(), Function.identity()));
     }
 }

@@ -30,6 +30,7 @@ public class Main {
 
         Solver solver = new GreedySolver(office, developers, managers);
         Solution solution = solver.solve();
+        System.out.println(String.format("Found solution with score of %d.", solution.getTotalScore()));
 
         try {
             String which = Paths.get(args[0]).getFileName().toString().substring(0, 1);
