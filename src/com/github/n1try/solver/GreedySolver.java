@@ -82,7 +82,7 @@ public class GreedySolver implements Solver {
             return;
         }
 
-        office.getAdjacentTiles(tile, type, true).forEach(t -> processRecursively(t, type));
+        office.getAdjacentTiles(tile, type, true, true).forEach(t -> processRecursively(t, type));
     }
 
     private void place(Replyer replyer, Office.Tile tile) {

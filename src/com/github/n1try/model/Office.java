@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -66,11 +68,13 @@ public class Office {
     private Tile[][] tiles;
     private List<Tile> tileList;
     private Map<String, Integer> scoreCache;
+    private Set<Tile> visited;
 
     public Office(int width, int height) {
         tiles = new Tile[height][width];
         tileList = new ArrayList<>(width * height);
         scoreCache = new HashMap<>();
+        visited = new HashSet<>();
     }
 
     public void init(String[] officeConfig) {
@@ -88,7 +92,7 @@ public class Office {
             }
         }
 
-        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type, false).size()));
+        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type, false, false).size()));
         Collections.reverse(tileList);
     }
 
@@ -96,13 +100,13 @@ public class Office {
         return tileList.stream().filter(t -> t.type == type && !t.isOccupied()).findFirst();
     }
 
-    public List<Tile> getAdjacentTiles(Tile tile, TileType type, boolean freeOnly) {
+    public List<Tile> getAdjacentTiles(Tile tile, TileType type, boolean freeOnly, boolean unseenOnly) {
         List<Tile> adjacentTiles = new ArrayList<>();
 
         if (tile.x > 0) {
             Tile t = tiles[tile.y][tile.x - 1];
             if (t.type == type) {
-                if (!freeOnly || t.isFree()) {
+                if ((!freeOnly || t.isFree()) && (!unseenOnly || !visited.contains(t))) {
                     adjacentTiles.add(t);
                 }
             }
@@ -110,7 +114,7 @@ public class Office {
         if (tile.x < tiles[0].length - 1) {
             Tile t = tiles[tile.y][tile.x + 1];
             if (t.type == type) {
-                if (!freeOnly || t.isFree()) {
+                if ((!freeOnly || t.isFree()) && (!unseenOnly || !visited.contains(t))) {
                     adjacentTiles.add(t);
                 }
             }
@@ -118,7 +122,7 @@ public class Office {
         if (tile.y > 0) {
             Tile t = tiles[tile.y - 1][tile.x];
             if (t.type == type) {
-                if (!freeOnly || t.isFree()) {
+                if ((!freeOnly || t.isFree()) && (!unseenOnly || !visited.contains(t))) {
                     adjacentTiles.add(t);
                 }
             }
@@ -126,12 +130,13 @@ public class Office {
         if (tile.y < tiles.length - 1) {
             Tile t = tiles[tile.y + 1][tile.x];
             if (t.type == type) {
-                if (!freeOnly || t.isFree()) {
+                if ((!freeOnly || t.isFree()) && (!unseenOnly || !visited.contains(t))) {
                     adjacentTiles.add(t);
                 }
             }
         }
 
+        visited.addAll(adjacentTiles);
         return adjacentTiles;
     }
 
@@ -148,7 +153,7 @@ public class Office {
             return scoreCache.get(cacheKey);
         }
 
-        int score = getAdjacentTiles(tile, tile.type, false).stream()
+        int score = getAdjacentTiles(tile, tile.type, false, false).stream()
             .mapToInt(t -> replyer.score(t.getOccupant()))
             .sum();
 
