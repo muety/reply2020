@@ -22,6 +22,8 @@ public class Main {
     private static List<Manager> managers = new ArrayList<>();
 
     public static void main(String[] args) {
+        long start = System.currentTimeMillis();
+
         try {
             readInput(args[0]);
         } catch (FileNotFoundException e) {
@@ -38,6 +40,9 @@ public class Main {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
+        long end = System.currentTimeMillis();
+        System.out.println(String.format("Finished after %.2f seconds.", (end - start) / 1000f));
     }
 
     private static void readInput(String fileName) throws FileNotFoundException {

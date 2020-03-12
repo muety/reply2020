@@ -3,6 +3,7 @@ package com.github.n1try.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -45,6 +46,10 @@ public class Office {
             return occupant != null || type == TileType.UNAVAILABLE;
         }
 
+        public boolean isFree() {
+            return occupant == null && type != TileType.UNAVAILABLE;
+        }
+
         public TileType getType() {
             return type;
         }
@@ -60,10 +65,12 @@ public class Office {
 
     private Tile[][] tiles;
     private List<Tile> tileList;
+    private Map<String, Integer> scoreCache;
 
     public Office(int width, int height) {
         tiles = new Tile[height][width];
         tileList = new ArrayList<>(width * height);
+        scoreCache = new HashMap<>();
     }
 
     public void init(String[] officeConfig) {
@@ -81,7 +88,7 @@ public class Office {
             }
         }
 
-        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type).size()));
+        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type, false).size()));
         Collections.reverse(tileList);
     }
 
@@ -89,27 +96,39 @@ public class Office {
         return tileList.stream().filter(t -> t.type == type && !t.isOccupied()).findFirst();
     }
 
-    public List<Tile> getAdjacentTiles(Tile tile, TileType type) {
+    public List<Tile> getAdjacentTiles(Tile tile, TileType type, boolean freeOnly) {
         List<Tile> adjacentTiles = new ArrayList<>();
 
         if (tile.x > 0) {
-            if (tiles[tile.y][tile.x - 1].type == type) {
-                adjacentTiles.add(tiles[tile.y][tile.x - 1]);
+            Tile t = tiles[tile.y][tile.x - 1];
+            if (t.type == type) {
+                if (!freeOnly || t.isFree()) {
+                    adjacentTiles.add(t);
+                }
             }
         }
         if (tile.x < tiles[0].length - 1) {
-            if (tiles[tile.y][tile.x + 1].type == type) {
-                adjacentTiles.add(tiles[tile.y][tile.x + 1]);
+            Tile t = tiles[tile.y][tile.x + 1];
+            if (t.type == type) {
+                if (!freeOnly || t.isFree()) {
+                    adjacentTiles.add(t);
+                }
             }
         }
         if (tile.y > 0) {
-            if (tiles[tile.y - 1][tile.x].type == type) {
-                adjacentTiles.add(tiles[tile.y - 1][tile.x]);
+            Tile t = tiles[tile.y - 1][tile.x];
+            if (t.type == type) {
+                if (!freeOnly || t.isFree()) {
+                    adjacentTiles.add(t);
+                }
             }
         }
         if (tile.y < tiles.length - 1) {
-            if (tiles[tile.y + 1][tile.x].type == type) {
-                adjacentTiles.add(tiles[tile.y + 1][tile.x]);
+            Tile t = tiles[tile.y + 1][tile.x];
+            if (t.type == type) {
+                if (!freeOnly || t.isFree()) {
+                    adjacentTiles.add(t);
+                }
             }
         }
 
@@ -124,9 +143,17 @@ public class Office {
     }
 
     public int score(Tile tile, Replyer replyer) {
-        return getAdjacentTiles(tile, tile.type).stream()
+        String cacheKey = String.format("%d:%d:%d", tile.x, tile.y, replyer.index);
+        if (scoreCache.containsKey(cacheKey)) {
+            return scoreCache.get(cacheKey);
+        }
+
+        int score = getAdjacentTiles(tile, tile.type, false).stream()
             .mapToInt(t -> replyer.score(t.getOccupant()))
             .sum();
+
+        scoreCache.put(cacheKey, score);
+        return score;
     }
 
     public int totalScore() {
@@ -134,5 +161,9 @@ public class Office {
             .filter(t -> t.occupant != null)
             .mapToInt(t -> score(t, t.occupant))
             .sum();
+    }
+
+    public void flushCache() {
+        scoreCache.clear();
     }
 }
