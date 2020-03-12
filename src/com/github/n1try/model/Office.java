@@ -3,10 +3,10 @@ package com.github.n1try.model;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -65,12 +65,12 @@ public class Office {
 
     private Tile[][] tiles;
     private List<Tile> tileList;
-    private Map<String, Integer> scoreCache;
+    private Map<Integer, Integer> scoreCache;
 
     public Office(int width, int height) {
         tiles = new Tile[height][width];
         tileList = new ArrayList<>(width * height);
-        scoreCache = new HashMap<>();
+        scoreCache = new ConcurrentHashMap<>();
     }
 
     public void init(String[] officeConfig) {
@@ -143,7 +143,7 @@ public class Office {
     }
 
     public int score(Tile tile, Replyer replyer) {
-        String cacheKey = String.format("%d:%d:%d", tile.x, tile.y, replyer.index);
+        int cacheKey = tile.hashCode() * replyer.hashCode(); // TODO: This is not guaranteed to be unique!
         if (scoreCache.containsKey(cacheKey)) {
             return scoreCache.get(cacheKey);
         }

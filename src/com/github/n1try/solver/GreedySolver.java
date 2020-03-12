@@ -3,8 +3,10 @@ package com.github.n1try.solver;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -19,6 +21,7 @@ public class GreedySolver implements Solver {
     private List<Developer> developers;
     private List<Manager> managers;
     private List<Replyer> all;
+    private Set<Office.Tile> visitedTiles;
 
     public GreedySolver(Office office, List<Developer> developers, List<Manager> managers) {
         this.office = office;
@@ -28,6 +31,7 @@ public class GreedySolver implements Solver {
             .flatMap(Collection::stream)
             .sorted(Comparator.comparing(Replyer::getIndex))
             .collect(Collectors.toList());
+        this.visitedTiles = new HashSet<>();
     }
 
     @Override
@@ -68,6 +72,7 @@ public class GreedySolver implements Solver {
         }
 
         return list.parallelStream().max(Comparator.comparingInt(r -> office.score(tile, r)));
+        //return list.stream().max(Comparator.comparingInt(r -> office.score(tile, r)));
     }
 
     private void processRecursively(Office.Tile tile, Office.TileType type) {
@@ -82,7 +87,11 @@ public class GreedySolver implements Solver {
             return;
         }
 
-        office.getAdjacentTiles(tile, type, true).forEach(t -> processRecursively(t, type));
+        office.getAdjacentTiles(tile, type, true)
+            .stream()
+            .filter(t -> !visitedTiles.contains(t))
+            .peek(t -> visitedTiles.add(t))
+            .forEach(t -> processRecursively(t, type));
     }
 
     private void place(Replyer replyer, Office.Tile tile) {
