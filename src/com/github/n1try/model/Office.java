@@ -1,8 +1,8 @@
 package com.github.n1try.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -66,10 +66,12 @@ public class Office {
     private Tile[][] tiles;
     private List<Tile> tileList;
     private Map<Integer, Integer> scoreCache;
+    private long nFree;
+    private long nFilled;
 
     public Office(int width, int height) {
         tiles = new Tile[height][width];
-        tileList = new ArrayList<>(width * height);
+        tileList = new LinkedList<>();
         scoreCache = new ConcurrentHashMap<>();
     }
 
@@ -88,8 +90,10 @@ public class Office {
             }
         }
 
-        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles(t, t.type, false).size()));
-        Collections.reverse(tileList);
+        tileList.sort(Comparator.comparingInt(t -> getAdjacentTiles((Tile) t, ((Tile) t).type, false).size()).reversed());
+        nFree = tileList.stream()
+            .filter(t -> t.type != TileType.UNAVAILABLE)
+            .count();
     }
 
     public Optional<Tile> nextTile(TileType type) {
@@ -163,7 +167,13 @@ public class Office {
             .sum();
     }
 
-    public void flushCache() {
+    public void place(Tile tile, Replyer replyer) {
+        tile.setOccupant(replyer);
         scoreCache.clear();
+        nFilled++;
+    }
+
+    public float fillRate() {
+        return (float) nFilled / (float) nFree;
     }
 }

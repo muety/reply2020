@@ -1,14 +1,12 @@
 package com.github.n1try.solver;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import com.github.n1try.model.Developer;
 import com.github.n1try.model.Manager;
@@ -22,14 +20,18 @@ public class GreedySolver implements Solver {
     private List<Manager> managers;
     private List<Replyer> all;
     private Set<Office.Tile> visitedTiles;
+    private int c = 0;
 
-    public GreedySolver(Office office, List<Developer> developers, List<Manager> managers) {
+    public GreedySolver(Office office, List<Replyer> replyers) {
         this.office = office;
-        this.developers = developers;
-        this.managers = managers;
-        this.all = Stream.of(developers, managers)
-            .flatMap(Collection::stream)
-            .sorted(Comparator.comparing(Replyer::getIndex))
+        this.all = replyers;
+        this.developers = replyers.stream()
+            .filter(t -> t instanceof Developer)
+            .map(t -> (Developer) t)
+            .collect(Collectors.toList());
+        this.managers = replyers.stream()
+            .filter(t -> t instanceof Manager)
+            .map(t -> (Manager) t)
             .collect(Collectors.toList());
         this.visitedTiles = new HashSet<>();
     }
@@ -72,7 +74,6 @@ public class GreedySolver implements Solver {
         }
 
         return list.parallelStream().max(Comparator.comparingInt(r -> office.score(tile, r)));
-        //return list.stream().max(Comparator.comparingInt(r -> office.score(tile, r)));
     }
 
     private void processRecursively(Office.Tile tile, Office.TileType type) {
@@ -83,6 +84,12 @@ public class GreedySolver implements Solver {
         Optional<? extends Replyer> replyer = findBestCandidate(tile, type);
         if (replyer.isPresent()) {
             replyer.ifPresent(replyer1 -> place(replyer1, tile));
+
+            c++;
+            if (c % 100 == 0) {
+                System.out.printf("Progress: %.1f %%\n", office.fillRate() * 100);
+                c = 0;
+            }
         } else {
             return;
         }
@@ -95,8 +102,7 @@ public class GreedySolver implements Solver {
     }
 
     private void place(Replyer replyer, Office.Tile tile) {
-        tile.setOccupant(replyer);
-        office.flushCache();
+        office.place(tile, replyer);
 
         if (replyer instanceof Developer) {
             developers.remove(replyer);

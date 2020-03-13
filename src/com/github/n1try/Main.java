@@ -1,3 +1,5 @@
+// Run with -Xss1024m
+
 package com.github.n1try;
 
 import java.io.File;
@@ -5,21 +7,21 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
 import com.github.n1try.model.Developer;
 import com.github.n1try.model.Manager;
 import com.github.n1try.model.Office;
+import com.github.n1try.model.Replyer;
 import com.github.n1try.model.Solution;
 import com.github.n1try.solver.GreedySolver;
 import com.github.n1try.solver.Solver;
 
 public class Main {
     private static Office office;
-    private static List<Developer> developers = new ArrayList<>();
-    private static List<Manager> managers = new ArrayList<>();
+    private static List<Replyer> replyers = new LinkedList<>();
 
     public static void main(String[] args) {
         long start = System.currentTimeMillis();
@@ -28,21 +30,23 @@ public class Main {
             readInput(args[0]);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
+            return;
         }
 
-        Solver solver = new GreedySolver(office, developers, managers);
+        Solver solver = new GreedySolver(office, replyers);
         Solution solution = solver.solve();
-        System.out.println(String.format("Found solution with score of %d.", solution.getTotalScore()));
+        System.out.printf("Found solution with score of %d.\n", solution.getTotalScore());
 
         try {
             String which = Paths.get(args[0]).getFileName().toString().substring(0, 1);
             Files.write(Paths.get(String.format("%s_solution.txt", which)), solution.toString().getBytes());
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
 
         long end = System.currentTimeMillis();
-        System.out.println(String.format("Finished after %.2f seconds.", (end - start) / 1000f));
+        System.out.printf("Finished after %.2f seconds.\n", (end - start) / 1000f);
     }
 
     private static void readInput(String fileName) throws FileNotFoundException {
@@ -81,7 +85,7 @@ public class Main {
                     developer.addSkill(parts[i]);
                 }
 
-                developers.add(developer);
+                replyers.add(developer);
                 countReplyers++;
             } else if (lc == height + nDevs + 2) {
                 nManagers = Integer.valueOf(line);
@@ -92,7 +96,7 @@ public class Main {
                 manager.setCompany(parts[0]);
                 manager.setBonus(Integer.valueOf(parts[1]));
 
-                managers.add(manager);
+                replyers.add(manager);
                 countReplyers++;
             } else {
                 throw new IllegalStateException("failed to read input");
