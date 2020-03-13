@@ -22,15 +22,17 @@ public class Office {
     public class Tile {
         private TileType type;
         private Replyer occupant;
+        private int index;
         private int x;
         private int y;
 
         public Tile() {
         }
 
-        public Tile(int x, int y, TileType type) {
+        public Tile(int x, int y, int index, TileType type) {
             this.x = x;
             this.y = y;
+            this.index = index;
             this.type = type;
         }
 
@@ -58,6 +60,10 @@ public class Office {
             this.type = type;
         }
 
+        public int getIndex() {
+            return index;
+        }
+
         public String print() {
             return y + " " + x;
         }
@@ -80,11 +86,11 @@ public class Office {
             for (int j = 0; j < tiles[0].length; j++) {
                 char token = officeConfig[i].charAt(j);
                 if (token == TOKEN_UNAVAILABLE) {
-                    tiles[i][j] = new Tile(j, i, TileType.UNAVAILABLE);
+                    tiles[i][j] = new Tile(j, i, i * j, TileType.UNAVAILABLE);
                 } else if (token == TOKEN_DEVELOPER) {
-                    tiles[i][j] = new Tile(j, i, TileType.DEVELOPER);
+                    tiles[i][j] = new Tile(j, i, i * j, TileType.DEVELOPER);
                 } else if (token == TOKEN_MANAGER) {
-                    tiles[i][j] = new Tile(j, i, TileType.MANAGER);
+                    tiles[i][j] = new Tile(j, i, i * j, TileType.MANAGER);
                 }
                 tileList.add(tiles[i][j]);
             }
@@ -175,5 +181,9 @@ public class Office {
 
     public float fillRate() {
         return (float) nFilled / (float) nFree;
+    }
+
+    public int nTiles() {
+        return tileList.size();
     }
 }

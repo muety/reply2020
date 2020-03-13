@@ -1,11 +1,10 @@
 package com.github.n1try.solver;
 
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.github.n1try.model.Developer;
@@ -19,7 +18,7 @@ public class GreedySolver implements Solver {
     private List<Developer> developers;
     private List<Manager> managers;
     private List<Replyer> all;
-    private Set<Office.Tile> visitedTiles;
+    private BitSet visitedTiles;
     private int c = 0;
 
     public GreedySolver(Office office, List<Replyer> replyers) {
@@ -33,7 +32,7 @@ public class GreedySolver implements Solver {
             .filter(t -> t instanceof Manager)
             .map(t -> (Manager) t)
             .collect(Collectors.toList());
-        this.visitedTiles = new HashSet<>();
+        this.visitedTiles = new BitSet(office.nTiles());
     }
 
     @Override
@@ -96,8 +95,8 @@ public class GreedySolver implements Solver {
 
         office.getAdjacentTiles(tile, type, true)
             .stream()
-            .filter(t -> !visitedTiles.contains(t))
-            .peek(t -> visitedTiles.add(t))
+            .filter(t -> !visitedTiles.get(t.getIndex()))
+            .peek(t -> visitedTiles.set(t.getIndex()))
             .forEach(t -> processRecursively(t, type));
     }
 
