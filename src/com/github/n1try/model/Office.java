@@ -166,6 +166,7 @@ public class Office {
         return score;
     }
 
+    // TODO: Fix. Should be counted on the edge, so that the score of two adjacent replyers is only counted once.
     public int totalScore() {
         return tileList.stream()
             .filter(t -> t.occupant != null)
