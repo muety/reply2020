@@ -1,4 +1,4 @@
-package com.github.n1try.model;
+package com.github.n1try.reply2020.model;
 
 import java.util.List;
 import java.util.Map;

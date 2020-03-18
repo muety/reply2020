@@ -1,6 +1,6 @@
 // Run with -Xss1024m
 
-package com.github.n1try;
+package com.github.n1try.reply2020;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -11,13 +11,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
 
-import com.github.n1try.model.Developer;
-import com.github.n1try.model.Manager;
-import com.github.n1try.model.Office;
-import com.github.n1try.model.Replyer;
-import com.github.n1try.model.Solution;
-import com.github.n1try.solver.GreedySolver;
-import com.github.n1try.solver.Solver;
+import com.github.n1try.reply2020.model.Developer;
+import com.github.n1try.reply2020.model.Manager;
+import com.github.n1try.reply2020.model.Office;
+import com.github.n1try.reply2020.model.Replyer;
+import com.github.n1try.reply2020.model.Solution;
+import com.github.n1try.reply2020.solver.GreedySolver;
+import com.github.n1try.reply2020.solver.Solver;
 
 public class Main {
     private static Office office;

@@ -1,4 +1,4 @@
-package com.github.n1try.solver;
+package com.github.n1try.reply2020.solver;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -7,11 +7,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import com.github.n1try.model.Developer;
-import com.github.n1try.model.Manager;
-import com.github.n1try.model.Office;
-import com.github.n1try.model.Replyer;
-import com.github.n1try.model.Solution;
+import com.github.n1try.reply2020.model.Developer;
+import com.github.n1try.reply2020.model.Manager;
+import com.github.n1try.reply2020.model.Office;
+import com.github.n1try.reply2020.model.Replyer;
+import com.github.n1try.reply2020.model.Solution;
 
 public class GreedySolver implements Solver {
     private Office office;

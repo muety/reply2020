@@ -1,4 +1,4 @@
-package com.github.n1try.model;
+package com.github.n1try.reply2020.model;
 
 public abstract class Replyer {
     int index;
