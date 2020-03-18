@@ -65,7 +65,7 @@ public class Office {
         }
 
         public String print() {
-            return y + " " + x;
+            return x + " " + y;
         }
     }
 
